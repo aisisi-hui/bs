@@ -4423,14 +4423,18 @@ do --// UI Source
                         BorderSizePixel = 0
                     })
 
-                    Items["RealSlider"] = Library:Create("TextButton", {
+                    Items["Hitbox"] = Library:Create("TextButton", {
                         Name = "\0",
-                        FontFace = Library.Font,
-                        TextSize = Library.FontSize,
                         Parent = Items["Slider"].Instance,
-                        TextColor3 = Color3.fromRGB(0, 0, 0),
+                        BackgroundTransparency = 1,
+                        Size = UDim2.new(1, 0, 1, 0),
                         Text = "",
-                        AutoButtonColor = false,
+                        BorderSizePixel = 0
+                    })
+
+                    Items["RealSlider"] = Library:Create("Frame", {
+                        Name = "\0",
+                        Parent = Items["Slider"].Instance,
                         AnchorPoint = Vector2.new(0, 1),
                         Position = UDim2.new(0, 2, 1, 0),
                         Size = UDim2.new(1, -4, 0, 3),
@@ -4559,19 +4563,17 @@ do --// UI Source
                 end
 
                 function Slider:GetSize(Input)
-                    local SizeX = (Input.Position.X - Items["RealSlider"].Instance.AbsolutePosition.X) / Items["RealSlider"].Instance.AbsoluteSize.X
-                    local Value = ((Slider.Max - Slider.Min) * SizeX) + Slider.Min
-
-                    return Value
+                    local Size = math.clamp((Input.Position.X - Items["RealSlider"].Instance.AbsolutePosition.X) / Items["RealSlider"].Instance.AbsoluteSize.X, 0, 1)
+                    return Slider.Min + ((Slider.Max - Slider.Min) * Size)
                 end
 
                 function Slider:SetText(Text)
-                    Items["Text"].Instance.Text = tostring(Text)
+                    Items["Text"].Instance.Text = Text
                 end
 
                 local InputChanged
 
-                Items["RealSlider"]:Connect("InputBegan", function(Input)
+                Items["Hitbox"]:Connect("InputBegan", function(Input)
                     if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                         Slider.Sliding = true
 
@@ -5472,8 +5474,10 @@ do --// UI Source
                     end
                 end
 
-                Items["SettingButton"]:Connect("MouseButton1Click", function()
-                    Popup:SetOpen(not Popup.IsOpen)
+                Items["SettingButton"]:Connect("InputBegan", function(Input)
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.MouseButton2 or Input.UserInputType == Enum.UserInputType.Touch then
+                        Popup:SetOpen(not Popup.IsOpen)
+                    end
                 end)
 
                 Library:Connect(UserInputService.InputBegan, function(Input, GPE)
