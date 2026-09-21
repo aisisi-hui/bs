@@ -1487,7 +1487,6 @@ do --// UI Source
                         KeybindWindow.Position = UDim2.new(0, KeyButton.AbsolutePosition.X, 0, KeyButton.AbsolutePosition.Y + KeyButton.AbsoluteSize.Y + GuiInset)
 
                         KeybindWindow.Parent = Library.Holder.Instance
-                        Items["KeybindWindow"]:Tween({Position = UDim2.new(0, KeyButton.AbsolutePosition.X, 0, KeyButton.AbsolutePosition.Y + KeyButton.AbsoluteSize.Y + 10 + GuiInset)})
 
                         Items["KeybindWindow"]:FadeDescendants(true, function()
                             Debounce = false
@@ -1501,7 +1500,6 @@ do --// UI Source
 
                         Library.OpenFrames[Keybind] = Keybind
                     else
-                        Items["KeybindWindow"]:Tween({Position = UDim2.new(0, KeyButton.AbsolutePosition.X, 0, KeyButton.AbsolutePosition.Y + KeyButton.AbsoluteSize.Y - 10 + GuiInset)})
                         Items["KeybindWindow"]:FadeDescendants(false, function()
                             Items["KeybindWindow"].Instance.Parent = Library.UnusedHolder.Instance
                             Debounce = false
@@ -4465,7 +4463,7 @@ do --// UI Source
                         BackgroundColor3 = Library.Theme["Accent"]
                     }):AddToTheme({BackgroundColor3 = 'Accent'})
 
-                    Items["Value"] = Library:Create("TextBox", {
+                    Items["Value"] = Library:Create("TextLabel", {
                         Name = "\0",
                         FontFace = Library.Font,
                         TextSize = Library.FontSize,
@@ -4476,15 +4474,33 @@ do --// UI Source
                         Size = UDim2.new(1, 0, 1, 0),
                         BackgroundTransparency = 1,
                         Position = UDim2.new(0.5, 0, 0.5, -1),
+                        BorderSizePixel = 0
+                    }):AddToTheme({TextColor3 = 'Text'})
+
+                    Items["Input"] = Library:Create("TextBox", {
+                        Name = "\0",
+                        FontFace = Library.Font,
+                        TextSize = Library.FontSize,
+                        Parent = Items["RealSlider"].Instance,
+                        TextColor3 = Library.Theme["Text"],
+                        Text = "",
+                        AnchorPoint = Vector2.new(0.5, 0.5),
+                        Size = UDim2.new(1, 0, 1, 0),
+                        BackgroundTransparency = 1,
+                        Position = UDim2.new(0.5, 0, 0.5, -1),
                         BorderSizePixel = 0,
                         ClearTextOnFocus = false,
-                        TextEditable = false, -- Only editable when right clicked
-                        Active = false
+                        Visible = false
                     }):AddToTheme({TextColor3 = 'Text'})
 
                     Library:Create("UIStroke", {
                         Name = "\0",
                         Parent = Items["Value"].Instance
+                    })
+
+                    Library:Create("UIStroke", {
+                        Name = "\0",
+                        Parent = Items["Input"].Instance
                     })
 
                     Items["Text"] = Library:Create("TextLabel", {
@@ -4576,8 +4592,10 @@ do --// UI Source
                             end
                         end)
                     elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
-                        Items["Value"].Instance.TextEditable = true
-                        Items["Value"].Instance:CaptureFocus()
+                        Items["Value"].Instance.Visible = false
+                        Items["Input"].Instance.Visible = true
+                        Items["Input"].Instance.Text = Items["Value"].Instance.Text:gsub(Slider.Suffix, "")
+                        Items["Input"].Instance:CaptureFocus()
                     end
                 end)
 
@@ -4593,9 +4611,10 @@ do --// UI Source
 
                 Slider:Set(Slider.Default)
 
-                Items["Value"]:Connect("FocusLost", function()
-                    Items["Value"].Instance.TextEditable = false
-                    local num = tonumber(Items["Value"].Instance.Text:match("[-]%d+%.?%d*") or Items["Value"].Instance.Text:match("%d+%.?%d*"))
+                Items["Input"]:Connect("FocusLost", function()
+                    Items["Value"].Instance.Visible = true
+                    Items["Input"].Instance.Visible = false
+                    local num = tonumber(Items["Input"].Instance.Text:match("[-]%d+%.?%d*") or Items["Input"].Instance.Text:match("%d+%.?%d*"))
                     if num then
                         Slider:Set(num)
                     else
