@@ -2133,6 +2133,7 @@ do --// UI Source
                         PaddingLeft = UDim.new(0, 8)
                     })
 
+                    local originalKbTitle = KeybindList.Name
                     Items["Text"] = Library:Create("TextLabel", {
                         Name = "\0",
                         FontFace = Library.BoldFont,
@@ -2140,14 +2141,25 @@ do --// UI Source
                         Parent = Items["Title"].Instance,
                         RichText = true,
                         TextColor3 = Library.Theme["Text"],
-                        Text = KeybindList.Name,
+                        Text = originalKbTitle,
                         Size = UDim2.new(0, 0, 0, 15),
                         AnchorPoint = Vector2.new(0, 0.5),
                         BorderSizePixel = 0,
                         BackgroundTransparency = 1,
                         Position = UDim2.new(0, 0, 0.5, -2),
                         AutomaticSize = Enum.AutomaticSize.X
-                    }):AddToTheme({TextColor3 = 'Text'})
+                    }):AddToTheme({
+                        TextColor3 = 'Text',
+                        Text = function()
+                            if originalKbTitle:find("<accent>") then
+                                local c = Library.Theme["Accent"]
+                                local hex = string.format("#%02X%02X%02X", math.round(c.R * 255), math.round(c.G * 255), math.round(c.B * 255))
+                                return originalKbTitle:gsub("<accent>", '<font color="' .. hex .. '">'):gsub("</accent>", "</font>")
+                            else
+                                return originalKbTitle
+                            end
+                        end
+                    })
 
                     Library:Create("UIStroke", {
                         Name = "\0",
@@ -4438,10 +4450,13 @@ do --// UI Source
                     Items["Hitbox"] = Library:Create("TextButton", {
                         Name = "\0",
                         Parent = Items["Slider"].Instance,
+                        AnchorPoint = Vector2.new(0, 1),
+                        Position = UDim2.new(0, 0, 1, 0),
                         BackgroundTransparency = 1,
-                        Size = UDim2.new(1, 0, 1, 0),
+                        Size = UDim2.new(1, 0, 0, 10),
                         Text = "",
-                        BorderSizePixel = 0
+                        BorderSizePixel = 0,
+                        ZIndex = 5
                     })
 
                     Items["RealSlider"] = Library:Create("Frame", {
@@ -4506,7 +4521,8 @@ do --// UI Source
                         Position = UDim2.new(0.5, 0, 0.5, -1),
                         BorderSizePixel = 0,
                         ClearTextOnFocus = false,
-                        Visible = false
+                        Visible = false,
+                        ZIndex = 6
                     }):AddToTheme({TextColor3 = 'Text'})
 
                     Library:Create("UIStroke", {
@@ -4585,7 +4601,7 @@ do --// UI Source
 
                 local InputChanged
 
-                Items["Hitbox"]:Connect("InputBegan", function(Input)
+                local function handleSliderInput(Input)
                     if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                         Slider.Sliding = true
 
@@ -4611,7 +4627,10 @@ do --// UI Source
                         Items["Input"].Instance.Text = Items["Value"].Instance.Text:gsub(Slider.Suffix, "")
                         Items["Input"].Instance:CaptureFocus()
                     end
-                end)
+                end
+
+                Items["Hitbox"]:Connect("InputBegan", handleSliderInput)
+                Items["RealSlider"]:Connect("InputBegan", handleSliderInput)
 
                 Library:Connect(UserInputService.InputChanged, function(Input)
                     if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
