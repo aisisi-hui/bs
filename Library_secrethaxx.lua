@@ -4447,18 +4447,6 @@ do --// UI Source
                         BorderSizePixel = 0
                     })
 
-                    Items["Hitbox"] = Library:Create("TextButton", {
-                        Name = "\0",
-                        Parent = Items["Slider"].Instance,
-                        AnchorPoint = Vector2.new(0, 1),
-                        Position = UDim2.new(0, 0, 1, 0),
-                        BackgroundTransparency = 1,
-                        Size = UDim2.new(1, 0, 0, 10),
-                        Text = "",
-                        BorderSizePixel = 0,
-                        ZIndex = 5
-                    })
-
                     Items["RealSlider"] = Library:Create("Frame", {
                         Name = "\0",
                         Parent = Items["Slider"].Instance,
@@ -4516,13 +4504,13 @@ do --// UI Source
                         TextColor3 = Library.Theme["Text"],
                         Text = "",
                         AnchorPoint = Vector2.new(0.5, 0.5),
-                        Size = UDim2.new(1, 0, 1, 0),
+                        Size = UDim2.new(1, 0, 0, 14),
                         BackgroundTransparency = 1,
                         Position = UDim2.new(0.5, 0, 0.5, -1),
                         BorderSizePixel = 0,
                         ClearTextOnFocus = false,
                         Visible = false,
-                        ZIndex = 6
+                        ZIndex = 12
                     }):AddToTheme({TextColor3 = 'Text'})
 
                     Library:Create("UIStroke", {
@@ -4533,6 +4521,18 @@ do --// UI Source
                     Library:Create("UIStroke", {
                         Name = "\0",
                         Parent = Items["Input"].Instance
+                    })
+
+                    Items["Hitbox"] = Library:Create("TextButton", {
+                        Name = "\0",
+                        Parent = Items["Slider"].Instance,
+                        AnchorPoint = Vector2.new(0, 1),
+                        Position = UDim2.new(0, 0, 1, 2),
+                        BackgroundTransparency = 1,
+                        Size = UDim2.new(1, 0, 0, 12),
+                        Text = "",
+                        BorderSizePixel = 0,
+                        ZIndex = 8
                     })
 
                     Items["Text"] = Library:Create("TextLabel", {
@@ -4601,6 +4601,15 @@ do --// UI Source
 
                 local InputChanged
 
+                local function openManualInput()
+                    Items["Value"].Instance.Visible = false
+                    Items["Input"].Instance.Visible = true
+                    Items["Input"].Instance.Text = Items["Value"].Instance.Text:gsub(Slider.Suffix, "")
+                    task.defer(function()
+                        Items["Input"].Instance:CaptureFocus()
+                    end)
+                end
+
                 local function handleSliderInput(Input)
                     if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                         Slider.Sliding = true
@@ -4622,14 +4631,12 @@ do --// UI Source
                             end
                         end)
                     elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
-                        Items["Value"].Instance.Visible = false
-                        Items["Input"].Instance.Visible = true
-                        Items["Input"].Instance.Text = Items["Value"].Instance.Text:gsub(Slider.Suffix, "")
-                        Items["Input"].Instance:CaptureFocus()
+                        openManualInput()
                     end
                 end
 
                 Items["Hitbox"]:Connect("InputBegan", handleSliderInput)
+                Items["Hitbox"]:Connect("MouseButton2Down", openManualInput)
                 Items["RealSlider"]:Connect("InputBegan", handleSliderInput)
 
                 Library:Connect(UserInputService.InputChanged, function(Input)
