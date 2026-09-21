@@ -3296,6 +3296,7 @@ do --// UI Source
                         PaddingLeft = UDim.new(0, 8)
                     })
 
+                    local originalTitle = Window.Name
                     Items["ActualTitle"] = Library:Create("TextLabel", {
                         Name = "\0",
                         FontFace = Library.BoldFont,
@@ -3310,7 +3311,18 @@ do --// UI Source
                         BackgroundTransparency = 1,
                         Position = UDim2.new(0, 0, 0.5, -3),
                         AutomaticSize = Enum.AutomaticSize.X
-                    }):AddToTheme({TextColor3 = 'Text'})
+                    }):AddToTheme({
+                        TextColor3 = 'Text',
+                        Text = function()
+                            if originalTitle:find("<accent>") then
+                                local c = Library.Theme["Accent"]
+                                local hex = string.format("#%02X%02X%02X", math.round(c.R * 255), math.round(c.G * 255), math.round(c.B * 255))
+                                return originalTitle:gsub("<accent>", '<font color="' .. hex .. '">'):gsub("</accent>", "</font>")
+                            else
+                                return originalTitle
+                            end
+                        end
+                    })
 
                     Library:Create("UIStroke", {
                         Name = "\0",
