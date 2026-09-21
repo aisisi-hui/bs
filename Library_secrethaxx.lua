@@ -1153,7 +1153,7 @@ do --// UI Source
                         end)
 
                         for Index, Value in Library.OpenFrames do
-                            if Value ~= IsSettings then
+                            if Value ~= IsSettings and Value ~= Data.Section then
                                 Value:SetOpen(false)
                             end
                         end
@@ -5011,7 +5011,7 @@ do --// UI Source
                         end)
 
                         for Index, Value in Library.OpenFrames do
-                            if Value ~= IsSettings and not Params.Parent then
+                            if Value ~= IsSettings and Value ~= Dropdown.Section and not Params.Parent then
                                 Value:SetOpen(false)
                             end
                         end
@@ -5464,7 +5464,7 @@ do --// UI Source
                         Items["SettingWindow"].Instance.Parent = Library.Holder.Instance
 
                         for _, open in Library.OpenFrames do
-                            if open ~= Popup and type(open.SetOpen) == "function" then
+                            if open ~= Popup and open.Section ~= Popup and type(open.SetOpen) == "function" then
                                 open:SetOpen(false)
                             end
                         end
@@ -5477,6 +5477,11 @@ do --// UI Source
                             if v:IsA("GuiObject") then v.ZIndex = Items["SettingWindow"].Instance.ZIndex + 1 end
                         end
                     else
+                        for _, open in Library.OpenFrames do
+                            if open ~= Popup and open.Section == Popup and type(open.SetOpen) == "function" then
+                                open:SetOpen(false)
+                            end
+                        end
                         Items["SettingWindow"]:FadeDescendants(false, function()
                             Items["SettingWindow"].Instance.Parent = Library.UnusedHolder.Instance
                         end)
@@ -5495,7 +5500,16 @@ do --// UI Source
                 Library:Connect(UserInputService.InputBegan, function(Input, GPE)
                     if Popup.IsOpen and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.MouseButton2 or Input.UserInputType == Enum.UserInputType.Touch) then
                         if not Items["SettingWindow"]:IsMouseOverFrame() and not Items["SettingButton"]:IsMouseOverFrame() then
-                            Popup:SetOpen(false)
+                            local overChild = false
+                            for _, open in Library.OpenFrames do
+                                if open ~= Popup and open.IsOpen and (open.Section == Popup or (open.Items and open.Items["OptionHolder"] and open.Items["OptionHolder"]:IsMouseOverFrame()) or (open.Items and open.Items["ColorpickerWindow"] and open.Items["ColorpickerWindow"]:IsMouseOverFrame())) then
+                                    overChild = true
+                                    break
+                                end
+                            end
+                            if not overChild then
+                                Popup:SetOpen(false)
+                            end
                         end
                     end
                 end)
