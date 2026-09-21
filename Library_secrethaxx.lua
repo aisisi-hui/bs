@@ -147,9 +147,18 @@ do --// UI Source
             ["LeftControl"]       = "LCtrl",
             ["LeftAlt"]           = "LAlt",
             ["RightAlt"]          = "RAlt",
-            ["MouseButton1"]      = "M1",
-            ["MouseButton2"]      = "M2",
-            ["MouseButton3"]      = "M3"
+            ["Zero"]              = "0",
+            ["One"]               = "1",
+            ["Two"]               = "2",
+            ["Four"]              = "4",
+            ["Five"]              = "5",
+            ["Six"]               = "6",
+            ["Nine"]              = "9",
+            ["MouseButton1"]      = "MB1",
+            ["MouseButton2"]      = "MB2",
+            ["MouseButton3"]      = "MB3",
+            ["MouseWheelFwd"]     = "WheelUp",
+            ["MouseWheelBwd"]     = "WheelDown"
         }
 
         -- Folders
@@ -4460,7 +4469,7 @@ do --// UI Source
                         Name = "\0",
                         FontFace = Library.Font,
                         TextSize = Library.FontSize,
-                        Parent = Items["RealSlider"].Instance, -- Parent to RealSlider so it doesn't move
+                        Parent = Items["RealSlider"].Instance,
                         TextColor3 = Library.Theme["Text"],
                         Text = "1871ft",
                         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -4469,7 +4478,8 @@ do --// UI Source
                         Position = UDim2.new(0.5, 0, 0.5, -1),
                         BorderSizePixel = 0,
                         ClearTextOnFocus = false,
-                        TextEditable = true,
+                        TextEditable = false, -- Only editable when right clicked
+                        Active = false
                     }):AddToTheme({TextColor3 = 'Text'})
 
                     Library:Create("UIStroke", {
@@ -4565,6 +4575,9 @@ do --// UI Source
                                 InputChanged = nil
                             end
                         end)
+                    elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
+                        Items["Value"].Instance.TextEditable = true
+                        Items["Value"].Instance:CaptureFocus()
                     end
                 end)
 
@@ -4581,6 +4594,7 @@ do --// UI Source
                 Slider:Set(Slider.Default)
 
                 Items["Value"]:Connect("FocusLost", function()
+                    Items["Value"].Instance.TextEditable = false
                     local num = tonumber(Items["Value"].Instance.Text:match("[-]%d+%.?%d*") or Items["Value"].Instance.Text:match("%d+%.?%d*"))
                     if num then
                         Slider:Set(num)
